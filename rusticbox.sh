@@ -32,7 +32,7 @@ case $0 in
 #			d_name=$(date -d "2023-01-02 +$i days" +%a 2>/dev/null || date -j -v+${i}d -f "%Y-%m-%d" "2023-01-02" "+%a" 2>/dev/null)
 #			weekdays+=("${d_name:0:2}")
 #		done
-#		printf "\n     %s %s\n" "$month_name" "$year"
+#		printf "\n	 %s %s\n" "$month_name" "$year"
 #		for w in "${weekdays[@]}"; do
 #			printf "%2s " "$w"
 #		done
@@ -66,82 +66,82 @@ case $0 in
 				*) exit 4 ;;
 			esac
 		done
-        year=$(date +%Y)
-        month_num=$(date +%m)
-        month_name=$(date +%B)
-        today=$(date +%e|tr -d ' ')
-        first_day_dow=$(date -d "${year}-${month_num}-01" +%u 2>/dev/null || date -j -f "%Y-%m-%d" "${year}-${month_num}-01" "+%u")
-        days_in_month=31
-        case "$month_num" in
-            04|06|09|11) days_in_month=30 ;;
-            02) (( days_in_month = ((year % 4==0 && year % 100!=0) || (year % 400==0)) ? 29 : 28 )) ;;
-        esac
-        weekdays=()
-        for i in {0..6}; do
-            d_name=$(date -d "2023-01-02 +$i days" +%a 2>/dev/null || date -j -v+${i}d -f "%Y-%m-%d" "2023-01-02" "+%a" 2>/dev/null)
-            weekdays+=("${d_name:0:2}")
-        done
+		year=$(date +%Y)
+		month_num=$(date +%m)
+		month_name=$(date +%B)
+		today=$(date +%e|tr -d ' ')
+		first_day_dow=$(date -d "${year}-${month_num}-01" +%u 2>/dev/null || date -j -f "%Y-%m-%d" "${year}-${month_num}-01" "+%u")
+		days_in_month=31
+		case "$month_num" in
+			04|06|09|11) days_in_month=30 ;;
+			02) (( days_in_month = ((year % 4==0 && year % 100!=0) || (year % 400==0)) ? 29 : 28 )) ;;
+		esac
+		weekdays=()
+		for i in {0..6}; do
+			d_name=$(date -d "2023-01-02 +$i days" +%a 2>/dev/null || date -j -v+${i}d -f "%Y-%m-%d" "2023-01-02" "+%a" 2>/dev/null)
+			weekdays+=("${d_name:0:2}")
+		done
 		if "$vertical"; then
-            # Formato Verticale: giorni della settimana in riga, settimane in colonna
-            printf "\n    %s %s\n\n" "$month_name" "$year"
-            
-            # Calcola la data del lunedì della settimana in cui cade il 1° del mese
-            base_monday=$(( 2 - first_day_dow ))
+			# Formato Verticale: giorni della settimana in riga, settimane in colonna
+			printf "\n	%s %s\n\n" "$month_name" "$year"
+			
+			# Calcola la data del lunedì della settimana in cui cade il 1° del mese
+			base_monday=$(( 2 - first_day_dow ))
 
-            for (( d_idx=1; d_idx<=7; d_idx++ )); do
-                printf "%2s " "${weekdays[d_idx-1]}"
-                
-                for (( w=0; w<6; w++ )); do
-                    # Se l'inizio di questa settimana supera i giorni del mese, interrompiamo la riga
-                    week_start=$(( base_monday + w * 7 ))
-                    (( week_start > days_in_month )) && break
+			for (( d_idx=1; d_idx<=7; d_idx++ )); do
+				printf "%2s " "${weekdays[d_idx-1]}"
+				
+				for (( w=0; w<6; w++ )); do
+					# Se l'inizio di questa settimana supera i giorni del mese, interrompiamo la riga
+					week_start=$(( base_monday + w * 7 ))
+					(( week_start > days_in_month )) && break
 
-                    d=$(( base_monday + (d_idx - 1) + (w * 7) ))
-                    
-                    if (( d < 1 || d > days_in_month )); then
-                        printf "   "
-                    else
-                        printf -v day_str "%2d" "$d"
-                        (( d == today )) && fmt="${reverse}${day_str}${normal}" || fmt="$day_str"
-                        printf "%b " "$fmt"
-                    fi
-                done
-                printf "\n"
-            done
-            printf "\n"
-        else
-            # Formato Orizzontale (default)
-            printf "\n    %s %s\n" "$month_name" "$year"
-            for w in "${weekdays[@]}"; do
-                printf "%2s " "$w"
-            done
-            printf "\n"
-            current_col=1
-            while (( current_col < first_day_dow )); do
-                printf "   "
-                ((current_col++))
-            done
-            day=1
-            while (( day <= days_in_month )); do
-                day_str=""
-                printf -v day_str "%2d" "$day"
-                (( day == today )) && fmt="${reverse}${day_str}${normal}" || fmt="$day_str"
-                printf "%b " "$fmt"
-                (( current_col % 7 == 0 )) && printf "\n"
-                ((day++))
-                ((current_col++))
-            done
-            (( (current_col - 1) % 7 != 0 )) && printf "\n"
-            printf "\n"
-        fi
-    ;;
+					d=$(( base_monday + (d_idx - 1) + (w * 7) ))
+					
+					if (( d < 1 || d > days_in_month )); then
+						printf "   "
+					else
+						printf -v day_str "%2d" "$d"
+						(( d == today )) && fmt="${reverse}${day_str}${normal}" || fmt="$day_str"
+						printf "%b " "$fmt"
+					fi
+				done
+				printf "\n"
+			done
+			printf "\n"
+		else
+			# Formato Orizzontale (default)
+			printf "\n	%s %s\n" "$month_name" "$year"
+			for w in "${weekdays[@]}"; do
+				printf "%2s " "$w"
+			done
+			printf "\n"
+			current_col=1
+			while (( current_col < first_day_dow )); do
+				printf "   "
+				((current_col++))
+			done
+			day=1
+			while (( day <= days_in_month )); do
+				day_str=""
+				printf -v day_str "%2d" "$day"
+				(( day == today )) && fmt="${reverse}${day_str}${normal}" || fmt="$day_str"
+				printf "%b " "$fmt"
+				(( current_col % 7 == 0 )) && printf "\n"
+				((day++))
+				((current_col++))
+			done
+			(( (current_col - 1) % 7 != 0 )) && printf "\n"
+			printf "\n"
+		fi
+	;;
 
 	cat|*/cat)
 		#echo "$(<$1)" ;;
 		[[ -z "$1" || "$1" == "-" ]] || { [[ -r "$1" ]] || exit 1; exec < "$1"; }
 		while IFS= read -r line || [[ -n "$line" ]]; do
-        	printf '%s\n' "$line"
-        done
+			printf '%s\n' "$line"
+		done
 	;;
 
 	chat|*/chat)
@@ -201,7 +201,7 @@ case $0 in
 			f != "" {
 				n = split(f,parts,",")
 				out = ""
-        		for (i=1;i<=n;i++) {
+				for (i=1;i<=n;i++) {
 					if (parts[i] ~ /-/) {
 						split(parts[i],rng,"-")
 						for (j=rng[1];j<=rng[2];j++) out = (out == "" ? $j : out OFS $j)
@@ -297,15 +297,15 @@ case $0 in
 	fortune|*/fortune)
 		file="${1:-/usr/share/games/fortunes/fortunes}"
 		[[ -r "$file" ]] || exit 1
-    	awk 'BEGIN { srand(); n = 1 }
-        	$0 == "%%" { n++; next }
-        	{ fortunes[n] = (fortunes[n] == "" ? $0 : fortunes[n] "\n" $0) }
-        	END {
+		awk 'BEGIN { srand(); n = 1 }
+			$0 == "%%" { n++; next }
+			{ fortunes[n] = (fortunes[n] == "" ? $0 : fortunes[n] "\n" $0) }
+			END {
 				if (n > 0) {
-            		idx = int(rand() * n) + 1
-            		print fortunes[idx]
-        		}
-    		}' "$file"
+					idx = int(rand() * n) + 1
+					print fortunes[idx]
+				}
+			}' "$file"
 	;;
 
 	free|*/free)
@@ -318,7 +318,7 @@ case $0 in
 	;;
 
 	fromdos|*/fromdos)
-	    file="${1:-}"
+		file="${1:-}"
 		[[ -z "$file" || "$file" == "-" || -r "$file" ]] || exit 1
 		awk '{ sub(/\r$/, ""); print }' ${file:+"$file"}
 	;;
@@ -335,60 +335,60 @@ case $0 in
 	;;
 
 	hangman|*/hangman)
-	    if [[ -n "$1" ]]; then
-        	[[ -r "$1" ]] || exit 1
-        	words=()
-        	while IFS= read -r line || [[ -n "$line" ]]; do
-	            [[ -n "$line" ]] && words+=("$line")
-    	    done < "$1"
-        	[[ ${#words[@]} -eq 0 ]] && exit 1
-    	else
-        	words=("bash" "terminal" "script" "modular" "pipeline" "pager" "awk" "syntax" "buffer")
-    	fi
+		if [[ -n "$1" ]]; then
+			[[ -r "$1" ]] || exit 1
+			words=()
+			while IFS= read -r line || [[ -n "$line" ]]; do
+				[[ -n "$line" ]] && words+=("$line")
+			done < "$1"
+			[[ ${#words[@]} -eq 0 ]] && exit 1
+		else
+			words=("bash" "terminal" "script" "modular" "pipeline" "pager" "awk" "syntax" "buffer")
+		fi
 		while true; do
-	        word="${words[RANDOM % ${#words[@]}]}"
-        	len=${#word}
-	        guessed_letters=""
-    	    mistakes=0
-        	max_mistakes=6
-	        echo "=== BASH HANGMAN ==="
+			word="${words[RANDOM % ${#words[@]}]}"
+			len=${#word}
+			guessed_letters=""
+			mistakes=0
+			max_mistakes=6
+			echo "=== BASH HANGMAN ==="
 			while (( mistakes < max_mistakes )); do
-            	display=""
-            	complete=true
-	            for (( i=0; i<len; i++ )); do
+				display=""
+				complete=true
+				for (( i=0; i<len; i++ )); do
 					char="${word:i:1}"
-                	if [[ "$guessed_letters" == *"$char"* ]]; then
-                    	display+="$char "
-                	else
-	                    display+="_ "
-                    	complete=false
-                	fi
-            	done
-	            if $complete; then
-                	printf "\nParola: %s\n" "$display"
-                	echo "Hai vinto! La parola era: $word"
-                	break
-            	fi
-	            printf "\nParola: %s\n" "$display"
-	            echo "Errori: $mistakes / $max_mistakes | Lettere provate: ${guessed_letters:-Nessuna}"
+					if [[ "$guessed_letters" == *"$char"* ]]; then
+						display+="$char "
+					else
+						display+="_ "
+						complete=false
+					fi
+				done
+				if $complete; then
+					printf "\nParola: %s\n" "$display"
+					echo "Hai vinto! La parola era: $word"
+					break
+				fi
+				printf "\nParola: %s\n" "$display"
+				echo "Errori: $mistakes / $max_mistakes | Lettere provate: ${guessed_letters:-Nessuna}"
 
 				printf '%s' "Inserisci una lettera: "
 				IFS= read -r -n 1 -s guess
-            	echo
-	            [[ ! "$guess" =~ [a-z] ]] && continue
-    	        [[ "$guessed_letters" == *"$guess"* ]] && continue
+				echo
+				[[ ! "$guess" =~ [a-z] ]] && continue
+				[[ "$guessed_letters" == *"$guess"* ]] && continue
 				guessed_letters+="$guess"
-	            if [[ "$word" != *"$guess"* ]]; then
-    	            ((mistakes++))
-        	        echo "Lettera non presente!"
-            	fi
-        	done
-	        (( mistakes >= max_mistakes )) && echo -e "\nHai perso! La parola corretta era: $word"
+				if [[ "$word" != *"$guess"* ]]; then
+					((mistakes++))
+					echo "Lettera non presente!"
+				fi
+			done
+			(( mistakes >= max_mistakes )) && echo -e "\nHai perso! La parola corretta era: $word"
 			printf '%s' "Vuoi giocare ancora? (s/n): "
-        	IFS= read -r -n 1 -s play_again
-        	echo
-        	[[ "$play_again" != "s" && "$play_again" != "S" ]] && { echo "Alla prossima!"; exit 0; }
-    	done
+			IFS= read -r -n 1 -s play_again
+			echo
+			[[ "$play_again" != "s" && "$play_again" != "S" ]] && { echo "Alla prossima!"; exit 0; }
+		done
 	;;
 
 	head|*/head)
@@ -419,8 +419,8 @@ case $0 in
 		uname=$(awk -F: -v id="$uid" '$3 == id {print $1; exit}' /etc/passwd)
 		gname=$(awk -F: -v id="$gid" '$3 == id {print $1; exit}' /etc/group)
 		for g in "${g_ids[@]}"; do
-        gn=$(awk -F: -v id="$g" '$3 == id {print $1; exit}' /etc/group)
-		  groups_str+="${g}(${gn:-$g}),"
+			gn=$(awk -F: -v id="$g" '$3 == id {print $1; exit}' /etc/group)
+			groups_str+="${g}(${gn:-$g}),"
 		done
 		groups_str="${groups_str%,}"
 		printf 'uid=%s(%s) gid=%s(%s) groups=%s\n' "$uid" "${uname:-unknown}" "$gid" "${gname:-unknown}" "$groups_str"
@@ -437,87 +437,112 @@ case $0 in
 	;;
 
 	life|*/life)
-		width=70
-		height=21
-		density=45
-		delay_factor=1
+		width=50
+		height=14
+		density=40
+		delay_factor=3
+		c_red=""
+		c_gre=""
+		c_yel=""
+		c_nrm=""
+		nl=$'\n'
+		l_born="o"
+		l_aliv="O"
+		l_dead="x"
+		l_empt=" "
 		while [[ $# -gt 0 ]]; do
 			case "$1" in
-				-w)	[[ -n "$2" && "$2" =~ ^[0-9]+$ ]] || exit 2
+				-w)
+					[[ -n "$2" && "$2" =~ ^[0-9]+$ ]] || exit 2
 					(( 10 <= $2 && $2 <= 70 )) || exit 3
 					width="$2"
 					shift 2
 					;;
-				-h)	[[ -n "$2" && "$2" =~ ^[0-9]+$ ]] || exit 2
-					(( 5 <= $2 && $2 <= 22 )) || exit 3
+				-h)
+					[[ -n "$2" && "$2" =~ ^[0-9]+$ ]] || exit 2
+					(( 5 <= $2 && $2 <= 21 )) || exit 3
 					height="$2"
 					shift 2
 					;;
-				-d)	[[ -n "$2" && "$2" =~ ^[0-9]+$ ]] || exit 2
+				-d)
+					[[ -n "$2" && "$2" =~ ^[0-9]+$ ]] || exit 2
 					(( 5 <= $2 && $2 <= 95 )) || exit 3
 					density="$2"
 					shift 2
 					;;
-				-t)	[[ -n "$2" && "$2" =~ ^[0-9]+$ ]] || exit 2
+				-t)
+					[[ -n "$2" && "$2" =~ ^[0-9]+$ ]] || exit 2
 					(( 1 <= $2 && $2 <= 10 )) || exit 3
 					delay_factor="$2"
 					shift 2
 					;;
-				*)	exit 4
-                ;;
+				-c)
+					c_red=$'\x1b[1;31m'
+					c_gre=$'\x1b[1;32m'
+					c_yel=$'\x1b[1;33m'
+					c_nrm=$'\x1b[m'
+					shift
+					;;
+				*)
+					exit 4
+					;;
 			esac
 		done
-		delay=$(awk -v f="$delay_factor" 'BEGIN { printf "%.1f", f / 10 }')
-		awk -v width="$width" -v height="$height" -v density="$density" -v delay="$delay" '
-			function wait_or_quit(cmd) {
-				#cmd="read -t " delay " -n 1 k && { [ \"$k\" = \"q\" ] || [ \"$k\" = \"Q\" ]; }"
-				cmd="sleep " delay " "
-        		if (! system(cmd) == 0) {
-					print "\nPartita interrotta."
-					exit 0
-				}
-			}
-			BEGIN {
-				srand();
-				for (y=1; y<=height; y++) {
-					for (x=1; x<=width; x++) grid[x, y]=((rand()*100) < density) ? 1 : 0
-				}
-				while (1) {
-					out = "\033[H\033[2J=== CONWAY\x27S GAME OF LIFE (Press CTRL-C to exit) ===\n";
-					for (y=1; y<=height; y++) {
-						line = "";
-						for (x=1; x<=width; x++) line = line (grid[x, y] ? "O" : " ");
-		                out = out "|" line "|\n";
-					}
-					printf "%s", out;
-					for (y=1; y<=height; y++) {
-						for (x = 1; x <= width; x++) {
-							neighbors = 0;
-							for (dy = -1; dy <= 1; dy++) {
-								for (dx = -1; dx <= 1; dx++) {
-									if (dx == 0 && dy == 0) continue;
-									nx=x+dx;
-									ny=y+dy;
-									if (nx < 1) nx = width;
-									if (nx > width) nx = 1;
-									if (ny < 1) ny = height;
-									if (ny > height) ny = 1;
-									if (grid[nx, ny]) neighbors++;
-								}
-							}
-							if (grid[x, y]) {
-								next_grid[x, y]=(neighbors == 2 || neighbors == 3) ? 1 : 0;
-							} else {
-								next_grid[x, y]=(neighbors == 3) ? 1 : 0;
-							}
-						}
-					}
-					for (y = 1; y <= height; y++) {
-						for (x = 1; x <= width; x++) grid[x,y]=next_grid[x,y];
-					}
-					wait_or_quit();
-				}
-			}'
+		delay=$(( delay_factor == 10 ? 1 : 0 )).$(( delay_factor == 10 ? 0 : delay_factor ))
+		declare -A grid next_grid
+		for ((y = 1; y <= height; y++)); do
+			for ((x = 1; x <= width; x++)); do
+				(( (RANDOM % 100) < density )) && grid["$x,$y"]=1 || grid["$x,$y"]=0
+			done
+		done
+		while true; do
+			out=$'\x1b[H\x1b[2J=== GAME OF LIFE === (press q to quit)'"$nl"$'Legend: '${c_yel}${l_born}${c_nrm}' = born | '${c_gre}${l_aliv}${c_nrm}' = alive | '${c_red}${l_dead}${c_nrm}' = died'"$nl$nl"
+			for ((y = 1; y <= height; y++)); do
+				line=""
+				for ((x = 1; x <= width; x++)); do
+					case "${grid["$x,$y"]}" in
+						1) line+="${c_yel}${l_born}${c_nrm}" ;;
+						2) line+="${c_gre}${l_aliv}${c_nrm}" ;;
+						3) line+="${c_red}${l_dead}${c_nrm}" ;;
+						*) line+="${l_empt}" ;;
+					esac
+				done
+				out+="|$line|$nl"
+			done
+			printf '%s' "$out"
+			for ((y = 1; y <= height; y++)); do
+				for ((x = 1; x <= width; x++)); do
+					neighbors=0
+					for ((dy = -1; dy <= 1; dy++)); do
+						for ((dx = -1; dx <= 1; dx++)); do
+							(( dx == 0 && dy == 0 )) && continue
+							nx=$(( x + dx ))
+							ny=$(( y + dy ))
+							(( nx < 1 )) && nx=width
+							(( nx > width )) && nx=1
+							(( ny < 1 )) && ny=height
+							(( ny > height )) && ny=1
+							val="${grid["$nx,$ny"]:-0}"
+							(( val == 1 || val == 2 )) && ((neighbors++))
+						done
+					done
+					current="${grid["$x,$y"]:-0}"
+					if (( current == 1 || current == 2 )); then
+						next_grid["$x,$y"]=$(( (neighbors == 2 || neighbors == 3) ? 2 : 3 ))
+					else
+						next_grid["$x,$y"]=$(( neighbors == 3 ? 1 : 0 ))
+					fi
+				done
+			done
+			for ((y = 1; y <= height; y++)); do
+				for ((x = 1; x <= width; x++)); do
+					grid["$x,$y"]=${next_grid["$x,$y"]}
+				done
+			done
+			if IFS= read -s -t "$delay" -n 1 k </dev/tty ; then
+				[[ "${k,,}" == "q" ]] && { printf "\nGame exited.\n"; exit 0; }
+			fi
+		done
 	;;
 
 	lsmod|*/lsmod)
@@ -540,40 +565,40 @@ case $0 in
 				sum += val
 				count++
 			} } END {
-            	if (count == 0) exit 1
-            	avg = sum / count
-            	printf "%s %s %s\n", min, max, avg
+				if (count == 0) exit 1
+				avg = sum / count
+				printf "%s %s %s\n", min, max, avg
 		}' ${1:+"$1"}
 	;;
 
 	more|*/more)
-    	file="${1:-}"
-    	[[ -z "$file" || "$file" == "-" || -r "$file" ]] || exit 1
+		file="${1:-}"
+		[[ -z "$file" || "$file" == "-" || -r "$file" ]] || exit 1
 		start=1
-    	lines=23
+		lines=23
 		while true; do
-	        awk -v start="$start" -v n="$lines" '
+			awk -v start="$start" -v n="$lines" '
 				NR < start { next }
 				NR >= start && NR < start + n {
 				print
 				printed++
 			} END {
-                if (printed < n) exit 0;
-                else exit 2;
-            }' ${file:+"$file"}
-        awk_status=$?
-        [[ $awk_status -eq 0 ]] && exit 0
-        printf '%s' "More? (a) again, (q) quit, (space) next page, (enter) next line: "
-        IFS= read -r -n 1 -s choice
-        echo
-        case "$choice" in
-            q|Q) exit 0 ;;
-            a|A) start=1 ;;
-            " ") start=$((start + lines)) ;;
-            #""|$'\n') start=$((start + 1)) ;;
-            *) start=$((start + 1)) ;;
-        esac
-    done
+				if (printed < n) exit 0;
+				else exit 2;
+			}' ${file:+"$file"}
+		awk_status=$?
+		[[ $awk_status -eq 0 ]] && exit 0
+		printf '%s' "More? (a) again, (q) quit, (space) next page, (enter) next line: "
+		IFS= read -r -n 1 -s choice
+		echo
+		case "$choice" in
+			q|Q) exit 0 ;;
+			a|A) start=1 ;;
+			" ") start=$((start + lines)) ;;
+			#""|$'\n') start=$((start + 1)) ;;
+			*) start=$((start + 1)) ;;
+		esac
+	done
 	;;
 
 	mv|*/mv)
@@ -635,7 +660,7 @@ case $0 in
 	reset|*/reset) printf "\x1bc\x1b]104\x07\x1b[!p\x1b[?3;4l\x1b[4l\x1b>\x1b[?69l" >&2 ;;
 
 	rot13|*/rot13)
-    	file="${1:-}"
+		file="${1:-}"
 		[[ -n "$file" && "$file" != "-" ]] && [[ -r "$file" ]] || exit 1
 		awk '{ print translit($0, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM") }' ${file:+"$file"}
 	;;
@@ -697,7 +722,7 @@ case $0 in
 
 	todos|*/todos)
 		file="${1:-}"
-    	[[ -z "$file" || "$file" == "-" || -r "$file" ]] || exit 1
+		[[ -z "$file" || "$file" == "-" || -r "$file" ]] || exit 1
 		awk 'BEGIN { ORS = "\r\n" }
 			{ sub(/\r$/, ""); print }' ${file:+"$file"}
 	;;
@@ -760,7 +785,7 @@ case $0 in
 		hex="${hex,,}"
 		part1="${hex:0:8}"
 		part2="${hex:8:4}"
-    	part3="4${hex:13:3}"
+		part3="4${hex:13:3}"
 		var_char="${hex:16:1}"
 		printf -v mapped_var '%x' $(( (0x$var_char & 3) | 8 ))
 		part4="$mapped_var${hex:17:3}"
@@ -799,13 +824,13 @@ case $0 in
 
 	*) printf 'No function defined fors: %s\nAvailable functions:\n\n' "$0"
 		awk '{ if ((i = index($0, "|*"))) {
-		        s = substr($0, 1, i - 1)
-		        sub(/^[ \t]+/, "", s)
-		        if (s !~ /^awk/) {
-		            printf "%-18s", s
-            		if (++count % 4 == 0) print ""
-        		}
-    		}
+				s = substr($0, 1, i - 1)
+				sub(/^[ \t]+/, "", s)
+				if (s !~ /^awk/) {
+					printf "%-18s", s
+					if (++count % 4 == 0) print ""
+				}
+			}
 		} END { if (count % 4 != 0) print ""}' $0
 		exit 254
 esac
