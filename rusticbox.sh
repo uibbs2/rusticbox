@@ -14,127 +14,98 @@ case $0 in
 		printf '%s\n' "$result"
 	;;
 
-#	cal|*/cal)
-#		reverse="\x1b[7m"
-#		normal="\x1b[m"
-#		year=$(date +%Y)
-#		month_num=$(date +%m)
-#		month_name=$(date +%B)
-#		today=$(date +%e|tr -d ' ')
-#		first_day_dow=$(date -d "${year}-${month_num}-01" +%u 2>/dev/null || date -j -f "%Y-%m-%d" "${year}-${month_num}-01" "+%u")
-#		days_in_month=31
-#		case "$month_num" in
-#			04|06|09|11) days_in_month=30 ;;
-#			02) (( days_in_month = ((year % 4==0 && year % 100!=0) || #(year % 400==0)) ? 29 : 28 )) ;;
-#		esac
-#		weekdays=()
-#		for i in {0..6}; do
-#			d_name=$(date -d "2023-01-02 +$i days" +%a 2>/dev/null || date -j -v+${i}d -f "%Y-%m-%d" "2023-01-02" "+%a" 2>/dev/null)
-#			weekdays+=("${d_name:0:2}")
-#		done
-#		printf "\n	 %s %s\n" "$month_name" "$year"
-#		for w in "${weekdays[@]}"; do
-#			printf "%2s " "$w"
-#		done
-#		printf "\n"
-#		current_col=1
-#		while (( current_col < first_day_dow )); do
-#			printf "   "
-#			((current_col++))
-#		done
-#		day=1
-#		while (( day <= days_in_month )); do
-#			day_str=""
-#			printf -v day_str "%2d" "$day"
-#			(( day == today )) && fmt="${reverse}${day_str}${normal}" || fmt="$day_str"
-#			printf "%b " "$fmt"
-#			(( current_col % 7 == 0 )) && printf "\n"
-#			((day++))
-#			((current_col++))
-#		done
-#		(( (current_col - 1) % 7 != 0 )) && printf "\n"
-#		printf "\n"
-#	;;
-
 	cal|*/cal)
-		reverse="\x1b[7m"
-		normal="\x1b[m"
-		vertical=false
-		while [[ $# -gt 0 ]]; do
-			case "$1" in
-				-v) vertical=true; shift ;;
-				*) exit 4 ;;
-			esac
-		done
-		year=$(date +%Y)
-		month_num=$(date +%m)
-		month_name=$(date +%B)
-		today=$(date +%e|tr -d ' ')
-		first_day_dow=$(date -d "${year}-${month_num}-01" +%u 2>/dev/null || date -j -f "%Y-%m-%d" "${year}-${month_num}-01" "+%u")
-		days_in_month=31
-		case "$month_num" in
-			04|06|09|11) days_in_month=30 ;;
-			02) (( days_in_month = ((year % 4==0 && year % 100!=0) || (year % 400==0)) ? 29 : 28 )) ;;
-		esac
-		weekdays=()
-		for i in {0..6}; do
-			d_name=$(date -d "2023-01-02 +$i days" +%a 2>/dev/null || date -j -v+${i}d -f "%Y-%m-%d" "2023-01-02" "+%a" 2>/dev/null)
-			weekdays+=("${d_name:0:2}")
-		done
-		if "$vertical"; then
-			# Formato Verticale: giorni della settimana in riga, settimane in colonna
-			printf "\n	%s %s\n\n" "$month_name" "$year"
-			
-			# Calcola la data del lunedì della settimana in cui cade il 1° del mese
-			base_monday=$(( 2 - first_day_dow ))
-
-			for (( d_idx=1; d_idx<=7; d_idx++ )); do
-				printf "%2s " "${weekdays[d_idx-1]}"
-				
-				for (( w=0; w<6; w++ )); do
-					# Se l'inizio di questa settimana supera i giorni del mese, interrompiamo la riga
-					week_start=$(( base_monday + w * 7 ))
-					(( week_start > days_in_month )) && break
-
-					d=$(( base_monday + (d_idx - 1) + (w * 7) ))
-					
-					if (( d < 1 || d > days_in_month )); then
-						printf "   "
-					else
-						printf -v day_str "%2d" "$d"
-						(( d == today )) && fmt="${reverse}${day_str}${normal}" || fmt="$day_str"
-						printf "%b " "$fmt"
-					fi
-				done
-				printf "\n"
-			done
-			printf "\n"
-		else
-			# Formato Orizzontale (default)
-			printf "\n	%s %s\n" "$month_name" "$year"
-			for w in "${weekdays[@]}"; do
-				printf "%2s " "$w"
-			done
-			printf "\n"
-			current_col=1
-			while (( current_col < first_day_dow )); do
-				printf "   "
-				((current_col++))
-			done
-			day=1
-			while (( day <= days_in_month )); do
-				day_str=""
-				printf -v day_str "%2d" "$day"
-				(( day == today )) && fmt="${reverse}${day_str}${normal}" || fmt="$day_str"
-				printf "%b " "$fmt"
-				(( current_col % 7 == 0 )) && printf "\n"
-				((day++))
-				((current_col++))
-			done
-			(( (current_col - 1) % 7 != 0 )) && printf "\n"
-			printf "\n"
-		fi
-	;;
+      c_rvs=$'\x1b[7m'
+      c_nrm=$'\x1b[m'
+      c_red=""
+      c_blu=""
+      vertical=false
+      while [[ $# -gt 0 ]]; do
+         case "$1" in
+            -v)
+               vertical=true;
+               shift
+               ;;
+            -c)
+               c_red=$'\x1b[1;31m'
+               c_blu=$'\x1b[1;34m'
+               shift
+               ;;
+            *) exit 1 ;;
+         esac
+      done
+      year=$(date +%Y)
+      month_num=$(date +%m)
+      month_name=$(date +%B)
+		#today=$(date +%e)
+		#today="${today# }"
+		today=$((10#$(date +%e)))
+      first_day_dow=$(date -d "${year}-${month_num}-01" +%u 2>/dev/null || date -j -f "%Y-%m-%d" "${year}-${month_num}-01" "+%u")
+      days_in_month=31
+      case "$month_num" in
+         04|06|09|11) days_in_month=30 ;;
+         02) (( days_in_month = ((year % 4==0 && year % 100!=0) || (year % 400==0)) ? 29 : 28 )) ;;
+      esac
+      weekdays=()
+      for i in {0..6}; do
+         d_name=$(date -d "2023-01-02 +$i days" +%a 2>/dev/null || date -j -v+${i}d -f "%Y-%m-%d" "2023-01-02" "+%a" 2>/dev/null)
+         weekdays+=("${d_name:0:2}")
+      done
+      printf "\n  %s %s\n" "$month_name" "$year"
+      if "$vertical"; then
+         base_monday=$(( 2 - first_day_dow ))
+         for (( d_idx=1; d_idx<=7; d_idx++ )); do
+            w_color=""
+            (( d_idx == 6 )) && w_color="$c_blu"
+            (( d_idx == 7 )) && w_color="$c_red"
+            printf "%b%2s%b " "$w_color" "${weekdays[d_idx-1]}" "$c_nrm"
+            for (( w=0; w<6; w++ )); do
+               week_start=$(( base_monday + w * 7 ))
+               (( week_start > days_in_month )) && break
+               d=$(( base_monday + (d_idx - 1) + (w * 7) ))
+               if (( d < 1 || d > days_in_month )); then
+                  printf "   "
+               else
+                  printf -v day_str "%2d" "$d"
+						arr=("" "$c_rvs")
+						fmt="${w_color}${arr[d == today]}${day_str}${c_nrm}"
+                  printf "%b " "$fmt"
+               fi
+            done
+            printf "\n"
+         done
+         printf "\n"
+      else
+         for i in {1..7}; do
+            w_color=""
+            (( i == 6 )) && w_color="$c_blu"
+            (( i == 7 )) && w_color="$c_red"
+            printf "%b%2s%b " "$w_color" "${weekdays[i-1]}" "$c_nrm"
+         done
+         printf "\n"
+         current_col=1
+         while (( current_col < first_day_dow )); do
+            printf "   "
+            ((current_col++))
+         done
+         day=1
+         while (( day <= days_in_month )); do
+            col_mod=$(( (current_col - 1) % 7 + 1 ))
+            col_color=""
+            (( col_mod == 6 )) && col_color="$c_blu"
+            (( col_mod == 7 )) && col_color="$c_red"
+            printf -v day_str "%2d" "$day"
+				arr=("" "$c_rvs")
+				fmt="${col_color}${arr[day == today]}${day_str}${c_nrm}"
+            printf "%b " "$fmt"
+            (( current_col % 7 == 0 )) && printf "\n"
+            ((day++))
+            ((current_col++))
+         done
+         (( (current_col - 1) % 7 != 0 )) && printf "\n"
+         printf "\n"
+      fi
+   ;;
 
 	cat|*/cat)
 		#echo "$(<$1)" ;;
@@ -489,7 +460,7 @@ case $0 in
 			esac
 		done
 		delay=$(( delay_factor == 10 ? 1 : 0 )).$(( delay_factor == 10 ? 0 : delay_factor ))
-		declare -A grid next_grid
+		grid=(); next_grid=()
 		for ((y = 1; y <= height; y++)); do
 			for ((x = 1; x <= width; x++)); do
 				(( (RANDOM % 100) < density )) && grid["$x,$y"]=1 || grid["$x,$y"]=0
